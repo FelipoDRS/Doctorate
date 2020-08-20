@@ -39,16 +39,19 @@ for i in images:
     #plt.pause(15)
 
 plt.close()
-
 #rotate image, later add tests
 images_HSV=[]
+images_HLS=[]
+
 for i in images:
     images_HSV.append(cv2.cvtColor(i[0], cv2.COLOR_RGB2HSV))
-
+    images_HLS.append(cv2.cvtColor(i[0], cv2.COLOR_RGB2HLS))
 import time
 #for i in range(len(images_HSV)):
 ##    plt.figure();plt.imshow(images_HSV[i][:,:,0]);plt.colorbar()
-#    plt.figure();plt.imshow(images_HSV[i][:,:,1]);plt.colorbar()
+    plt.figure();plt.imshow(images_HLS[1][:,:,0]);plt.colorbar()
+    plt.figure();plt.imshow(images_HLS[1][:,:,1]);plt.colorbar()
+    plt.figure();plt.imshow(images_HLS[1][:,:,2]);plt.colorbar()
 # #   plt.figure();plt.imshow(images_HSV[i][:,:,2]);plt.colorbar()
 #    plt.pause(15)
 #    print(i)
@@ -57,20 +60,21 @@ import time
 r=50
 intensity_collect=[]
 for i in range(len(images_HSV)):
-    intensity=np.zeros((96,3))
+    intensity=np.zeros((96,4))
     for j in range(circles[i].shape[0]):
         r=circles[i][0,2]
-        collect_int=np.zeros(4*r*r)
+        collect_int=np.zeros((4*r*r,2))
         collect_int[:]=np.nan
         count=0
         for k in range(circles[i][j,1]-r,circles[i][j,1]+r):
             for l in range(circles[i][j,0]-r,circles[i][j,0]+r):
                 if (k-circles[i][j,1])**2 +(l-circles[i][j,0])**2 <= r*r:
-                     collect_int[count]=images_HSV[i][k,l,1]
+                     collect_int[count,0]=images_HSV[i][k,l,1]
+                     collect_int[count,1]=images_HLS[i][k,l,2]
                      count=count+1
         
         intensity[j,0]=circles[i][j,0];intensity[j,1]=circles[i][j,1];
-        intensity[j,2]=np.nanmean(collect_int)
+        intensity[j,[2,3]]=np.nanmean(collect_int,axis=0)
         
     intensity_collect.append(intensity.copy())
     print(np.mean(np.isnan(collect_int)))
@@ -100,7 +104,7 @@ for i in range(len(images_HSV)):
     intensity=intensity_collect[i]
     
     planilha=xls.parse(sheet_name=dict_photo_planilha[images[i][1]])
-    DF_dados=pd.DataFrame(intensity,columns=['X pos','Y pos','sat'])
+    DF_dados=pd.DataFrame(intensity,columns=['X pos','Y pos','sat','cor'])
     DF_dados['absorb']=0
 
     ind1=np.argsort(intensity[:,0])
@@ -111,11 +115,12 @@ for i in range(len(images_HSV)):
         DF_dados.iloc[j,3]=planilha.iloc[int_norm2[j].astype(int),11-int_norm1[j].astype(int)]
     DF_dados['log absorb']=np.log(DF_dados['absorb'])
     DF_dados['sqrt absorb']=np.sqrt(DF_dados['absorb'])
+    
     DF_collect.append(DF_dados.copy())
 
 l=0; 
 for k in DF_collect:
-#    k.to_csv(path_image+'\\' +images[l][1].replace('.jpg','.csv'))
+#    k.to_csv(path_image+'\\20200307' +images[l][1].replace('.jpg','.csv'))
 #    k.plot(x=2,y='sqrt absorb',style='+')
     plt.title(images[l][1])
     print(images[l][1])

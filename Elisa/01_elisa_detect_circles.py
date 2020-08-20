@@ -41,7 +41,7 @@ circles_sorted2=circles[ind2,:].copy()
 u=circles_sorted1[1,[0,1]]-circles_sorted1[0,[0,1]]
 v=np.array([0,1])
 
-ang=np.arctan((circles_sorted1[1,0]-circles_sorted1[0,0])/(circles_sorted2[1,1]-circles_sorted2[0,1]))*360/(2*np.pi)
+#ang=np.arctan((circles_sorted1[1,0]-circles_sorted1[0,0])/(circles_sorted2[1,1]-circles_sorted2[0,1]))*360/(2*np.pi)
 
 ang=180-np.arccos(np.vdot(v,u)/np.linalg.norm(u))*360/(2*np.pi)
 from scipy import ndimage
